@@ -26,7 +26,7 @@ all_pubs %>%
   mutate(All_info=paste(year,title,author,journal,number,sep = ", "),
          Title_lower=tolower(title)) %>% 
   arrange(desc(All_info)) %>% 
-  distinct(pubid, .keep_all = TRUE) %>% 
+  distinct(cid, .keep_all = TRUE) %>% 
   distinct(Title_lower, .keep_all = TRUE) %>% 
   filter(year!="1977") %>% #odd one for Roy  
   dplyr::select(All_info)->all_pubs_trim  
@@ -40,8 +40,8 @@ write_csv(all_pubs_trim,"MEP_publications.csv")
 # Create table in suitable format
 pubs_for_kbl <- all_pubs %>% 
   arrange(desc(year)) %>% 
-  distinct(pubid, .keep_all = TRUE) %>% 
-  drop_na(year) %>% 
+  distinct(cid, .keep_all = TRUE) %>% 
+  filter(is.na(year) == FALSE) %>% 
   mutate(publication = paste(journal, number),
          title_lower = tolower(title)) %>% 
   distinct(title_lower, .keep_all = TRUE) %>% 
