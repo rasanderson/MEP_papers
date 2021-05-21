@@ -1,16 +1,15 @@
 # Using the google scholar package
-assign(".lib.loc", "c:/Giles/R/Libraries", envir = environment(.libPaths))
-#install.packages("scholar",type='source',dependencies= TRUE,lib='c:/Giles/R/Libraries')
-
-library(tidyverse,lib='c:/Giles/R/Libraries')
-library(scholar,lib='c:/Giles/R/Libraries')
-
+#library(tidyverse,lib='c:/Giles/R/Libraries')
+#library(scholar,lib='c:/Giles/R/Libraries')
+library(tidyverse)
+library(scholar)
+library(kableExtra)
 
 # Roy's Google Scholar id
 # from https://scholar.google.co.uk/citations?user=z6jaMRcAAAAJ&hl=en
 
-mep_data <- read_csv("c:/Giles/Group stuff/Website/google_scholar_MEP.csv",
-                    na=c("(null)", "N/A","NA"))
+# Should now read without NA problems
+mep_data <- read_csv("google_scholar_MEP.csv")
 
 
 scholar_ids<- mep_data$Scholar_ID
@@ -32,12 +31,29 @@ all_pubs %>%
   filter(year!="1977") %>% #odd one for Roy  
   dplyr::select(All_info)->all_pubs_trim  
 
-
-write_tsv(all_pubs_trim,"C:/Giles/Group stuff/Website/MEP_publications.txt")
+# Was there a specific reason for going for tsv rather than csv?
+write_tsv(all_pubs_trim,"MEP_publications.tsv")
+write_csv(all_pubs_trim,"MEP_publications.csv")
 #write_csv((paste("C:/Giles/Group stuff/Website/Publications - Dist", ,".csv")))
 
+# As HTML
+# Create table in suitable format
+pubs_for_kbl <- all_pubs %>% 
+  arrange(desc(year)) %>% 
+  distinct(pubid, .keep_all = TRUE) %>% 
+  drop_na(year) %>% 
+  mutate(publication = paste(journal, number),
+         title_lower = tolower(title)) %>% 
+  distinct(title_lower, .keep_all = TRUE) %>% 
+  select(year, author, title, publication)
 
-
+# Output as HTML
+kbl(pubs_for_kbl) %>% 
+  kable_paper() %>% 
+  scroll_box(width = "100%", height = "100%") %>% 
+  kable_styling(fixed_thead = TRUE) %>% 
+  save_kable("MEP_publications.html", self_contained = TRUE)
+  
 
 
 
